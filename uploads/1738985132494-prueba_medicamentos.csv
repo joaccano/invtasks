@@ -1,0 +1,11 @@
+indicaciones,contraindicaciones,nombreFarmaco,nombreGenerico
+prueba,prueba,carga exito11,carga exitosas,1
+fallo duplicado,algo,Paracetamol,Acetaminofen,1
+fallo duplicado2,algo,Paracetamol,Acetaminofen,1,sfdg
+fallo idumedida invalido,algo,algo,asdff
+fallo idumedida no existe,algo,algo,3,jdf
+
+La función de agregar medicamentos no permite agregar medicamentos duplicados
+
+
+

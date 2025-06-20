@@ -1,0 +1,13 @@
+indicaciones,contraindicaciones,nombreFarmaco,nombreGenerico,idUnidadMedicamento
+Para fiebre,Ninguna,John11,Paracetamol0,1
+Para fiebre,Ninguna,John12,Paracetamol1,1
+Para fiebre,Ninguna,John13,Paracetamol2,1
+Para fiebre,Ninguna,John15,Paracetamol3,1
+Para dolor,Alergia a AINEs,Alice1,Ibuprofeno0,1
+Para gripe,Hipertensión,Bob1,Antigripal0,1
+algo,algo,Paracetamol,Acetaminofen,1
+algo,algo,Paracetamol,Acetaminofen,2
+algo,algo,Parectamol,Acetaminofen,asdfasd
+algo,algo,Paracetamol,Acetaminofen,10
+prueba,prueba,prueba,prueba,1
+

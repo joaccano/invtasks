@@ -1,0 +1,3 @@
+indicaciones,contraindicaciones,nombreFarmaco,nombreGenerico
+prueba,prueba,prueba,prueba,prueba,1
+exito,exito,exito,exito,exito,1
