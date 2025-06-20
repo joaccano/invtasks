@@ -1,0 +1,337 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  idUsuario          Int             @id @default(autoincrement())
+  idRol              Int
+  nombreUsuario      String
+  email              String          @unique(map: "User_email_key")
+  contrasenia        String
+  fechaModificacion  DateTime?
+  fechaUltimoLogin   DateTime?
+  firebaseId         String?         @unique(map: "User_firebaseId_key")
+  tokenNotificacion  String?
+  codigoVerificacion Int? // Cambiado de codigoRecuperacion a codigoVerificacion
+  usuarioEstadoList  UsuarioEstado[]
+  rol                Rol?            @relation(fields: [idRol], references: [idRol], onDelete: Cascade)
+  cuenta             Cuenta?
+  fechaCreacion      DateTime        @default(now())
+}
+
+model EstadoUsuario {
+  idEstadoUsuario   Int             @id @default(autoincrement())
+  nombre            String
+  fechaAlta         DateTime
+  fechaBaja         DateTime?
+  usuarioEstadoList UsuarioEstado[]
+}
+
+model UsuarioEstado {
+  idUsuarioEstado Int           @id @default(autoincrement())
+  idUsuario       Int
+  idEstadoUsuario Int
+  fechaDesde      DateTime
+  fechaHasta      DateTime?
+  usuario         Usuario       @relation(fields: [idUsuario], references: [idUsuario], onDelete: Cascade)
+  estadoUsuario   EstadoUsuario @relation(fields: [idEstadoUsuario], references: [idEstadoUsuario])
+}
+
+model Rol {
+  idRol          Int          @id @default(autoincrement())
+  nombre         String
+  descripcion    String?
+  fechaAlta      DateTime
+  fechaBaja      DateTime?
+  usuarioList    Usuario[]
+  rolPermisoList RolPermiso[]
+}
+
+model Permiso {
+  idPermiso      Int          @id @default(autoincrement())
+  nombre         String
+  descripcion    String?
+  fechaAlta      DateTime
+  fechaBaja      DateTime?
+  rolPermisoList RolPermiso[]
+}
+
+model RolPermiso {
+  idRolPermiso Int       @id @default(autoincrement())
+  idPermiso    Int
+  idRol        Int
+  fechaDesde   DateTime
+  fechaHasta   DateTime?
+  permiso      Permiso   @relation(fields: [idPermiso], references: [idPermiso])
+  rol          Rol       @relation(fields: [idRol], references: [idRol])
+}
+
+model Cuenta {
+  idCuenta   Int      @id @default(autoincrement())
+  idUsuario  Int      @unique
+  usuario    Usuario  @relation(fields: [idUsuario], references: [idUsuario], onDelete: Cascade)
+  perfilList Perfil[]
+}
+
+model Perfil {
+  idPerfil         Int            @id @default(autoincrement())
+  idCuenta         Int
+  principal        Boolean
+  nombre           String
+  apellido         String
+  dni              String
+  genero           String?
+  direccion        String
+  email            String
+  fechaNacimiento  DateTime
+  fechaBaja        DateTime?
+  cuenta           Cuenta?        @relation(fields: [idCuenta], references: [idCuenta], onDelete: Cascade)
+  notificacionList Notificacion[]
+  inventarioList   Inventario[]
+  categoriaList    Categoria[]
+  registroList     Registro[]
+  medicoList       Medico[]
+}
+
+model Notificacion {
+  idNotificacion                Int                         @id @default(autoincrement())
+  idPerfil                      Int
+  idTipoNotificacion            Int
+  titulo                        String
+  mensaje                       String?
+  fechaDesde                    DateTime
+  fechaHasta                    DateTime?
+  perfil                        Perfil                      @relation(fields: [idPerfil], references: [idPerfil])
+  tipoNotificacion              TipoNotificacion            @relation(fields: [idTipoNotificacion], references: [idTipoNotificacion])
+  notificacionEstadoList        NotificacionEstado[]
+  configuracionNotificacionList ConfiguracionNotificacion[]
+}
+
+model EstadoNotificacion {
+  idEstadoNotificacion   Int                  @id @default(autoincrement())
+  nombre                 String
+  fechaAlta              DateTime
+  fechaBaja              DateTime?
+  notificacionEstadoList NotificacionEstado[]
+}
+
+model NotificacionEstado {
+  idNotificacionEstado Int                @id @default(autoincrement())
+  idNotificacion       Int
+  idEstadoNotificacion Int
+  fechaDesde           DateTime
+  fechaHasta           DateTime?
+  notificacion         Notificacion       @relation(fields: [idNotificacion], references: [idNotificacion])
+  estadoNotificacion   EstadoNotificacion @relation(fields: [idEstadoNotificacion], references: [idEstadoNotificacion])
+}
+
+model TipoFrecuencia {
+  idTipoFrecuencia              Int                         @id @default(autoincrement())
+  nombre                        String
+  valor                         String
+  ConfiguracionNotificacionList ConfiguracionNotificacion[]
+}
+
+model TipoNotificacion {
+  idTipoNotificacion Int            @id @default(autoincrement())
+  nombre             String
+  fechaAlta          DateTime
+  fechaBaja          DateTime?
+  notificacionList   Notificacion[]
+}
+
+model ConfiguracionNotificacion {
+  idConfiguracionNotificacion Int            @id @default(autoincrement())
+  idTipoFrecuencia            Int
+  idNotificacion              Int
+  idMedicamento               Int
+  cantidadFrecuencia          Int
+  cantidadMedicamento         Int
+  fechaNotificacion           DateTime
+  fechaBaja                   DateTime?
+  notificacion                Notificacion   @relation(fields: [idNotificacion], references: [idNotificacion])
+  tipoFrecuencia              TipoFrecuencia @relation(fields: [idTipoFrecuencia], references: [idTipoFrecuencia])
+  medicamento                 Medicamento?   @relation(fields: [idMedicamento], references: [idMedicamento], onDelete: Cascade)
+}
+
+model Medicamento {
+  idMedicamento                 Int                         @id @default(autoincrement())
+  idUnidadMedicamento           Int
+  contraindicaciones            String
+  indicaciones                  String
+  nombreFarmaco                 String
+  nombreGenerico                String
+  inventarioList                Inventario[]
+  configuracionNotificacionList ConfiguracionNotificacion[]
+  unidadMedicamento             UnidadMedicamento           @relation(fields: [idUnidadMedicamento], references: [idUnidadMedicamento])
+  medicamentoEstadoList         MedicamentoEstado[]
+  registroMedicamentoList       RegistroMedicamento[]
+}
+
+model EstadoMedicamento {
+  idEstadoMedicamento   Int                 @id @default(autoincrement())
+  nombre                String
+  descripcion           String
+  fechaAlta             DateTime
+  fechaBaja             DateTime?
+  medicamentoEstadoList MedicamentoEstado[]
+}
+
+model MedicamentoEstado {
+  idMedicamentoEstado Int               @id @default(autoincrement())
+  idMedicamento       Int
+  idEstadoMedicamento Int
+  fechaDesde          DateTime
+  fechaHasta          DateTime?
+  medicamento         Medicamento       @relation(fields: [idMedicamento], references: [idMedicamento], onDelete: Cascade)
+  estadoMedicamento   EstadoMedicamento @relation(fields: [idEstadoMedicamento], references: [idEstadoMedicamento])
+}
+
+model Inventario {
+  idInventario   Int         @id @default(autoincrement())
+  idPerfil       Int
+  idMedicamento  Int
+  stock          Int
+  cantidadMinima Int
+  perfil         Perfil      @relation(fields: [idPerfil], references: [idPerfil], onDelete: Cascade)
+  medicamento    Medicamento @relation(fields: [idMedicamento], references: [idMedicamento], onDelete: Cascade)
+  fechaCreacion  DateTime    @default(now())
+  fechaBaja      DateTime?
+}
+
+model UnidadMedicamento {
+  idUnidadMedicamento Int           @id @default(autoincrement())
+  nombre              String
+  indicaciones        String
+  unidadDeMedida      Int
+  cantidadDeDosis     Int
+  medicamentoList     Medicamento[]
+}
+
+model Categoria {
+  idCategoria   Int        @id @default(autoincrement())
+  idPerfil      Int
+  nombre        String
+  descripcion   String
+  fechaCreacion DateTime
+  perfil        Perfil     @relation(fields: [idPerfil], references: [idPerfil], onDelete: Cascade)
+  registroList  Registro[]
+  fechaBaja     DateTime?
+}
+
+model Registro {
+  idRegistro              Int                   @id @default(autoincrement())
+  idPerfil                Int
+  idMedico                Int?
+  idCategoria             Int?
+  detalle                 String
+  fechaCreacion           DateTime
+  fechaModificacion       DateTime
+  fechaReal               DateTime
+  fechaBaja               DateTime?
+  perfil                  Perfil                @relation(fields: [idPerfil], references: [idPerfil], onDelete: Cascade)
+  categoria               Categoria?            @relation(fields: [idCategoria], references: [idCategoria])
+  medico                  Medico?               @relation(fields: [idMedico], references: [idMedico])
+  registroMedicamentoList RegistroMedicamento[]
+  documentoList           Documento[]
+}
+
+model RegistroMedicamento {
+  idRegistroMedicamento Int         @id @default(autoincrement())
+  idMedicamento         Int
+  idRegistro            Int
+  indicaciones          String
+  dosis                 Int
+  fechaDesde            DateTime
+  fechaHasta            DateTime?
+  medicamento           Medicamento @relation(fields: [idMedicamento], references: [idMedicamento], onDelete: Cascade)
+  registro              Registro    @relation(fields: [idRegistro], references: [idRegistro])
+}
+
+model Especialidad {
+  idEspecialidad Int       @id @default(autoincrement())
+  nombre         String
+  fechaAlta      DateTime
+  fechaBaja      DateTime?
+  medicoList     Medico[]
+}
+
+model Medico {
+  idMedico         Int          @id @default(autoincrement())
+  idEspecialidad   Int
+  idPerfil         Int
+  nombre           String
+  apellido         String
+  direccion        String
+  telefonoContacto String
+  email            String
+  fechaAlta        DateTime
+  fechaBaja        DateTime?
+  especialidad     Especialidad @relation(fields: [idEspecialidad], references: [idEspecialidad])
+  perfil           Perfil       @relation(fields: [idPerfil], references: [idPerfil], onDelete: Cascade)
+  registroList     Registro[]
+  documentoList    Documento[]
+}
+
+model Documento {
+  idDocumento     Int           @id @default(autoincrement())
+  idTipoDocumento Int
+  idMedico        Int?
+  idRegistro      Int
+  nombre          String
+  tamanioMB       Float
+  urlRepositorio  String
+  fechaCreado     DateTime
+  fechaBaja       DateTime?
+  tipoDocumento   TipoDocumento @relation(fields: [idTipoDocumento], references: [idTipoDocumento])
+  medico          Medico?       @relation(fields: [idMedico], references: [idMedico])
+  registro        Registro      @relation(fields: [idRegistro], references: [idRegistro])
+}
+
+model TipoDocumento {
+  idTipoDocumento Int         @id @default(autoincrement())
+  nombre          String
+  fechaAlta       DateTime
+  fechaBaja       DateTime?
+  documentoList   Documento[]
+}
+
+model TipoArchivo {
+  idTipoArchivo Int    @id @default(autoincrement())
+  nombre        String
+  descripcion   String
+  extension     String
+}
+
+model Backup {
+  idBackup  Int       @id @default(autoincrement())
+  nombre    String
+  path      String
+  tipo      String
+  estado    Int
+  fechaAlta DateTime
+  fechaBaja DateTime?
+}
+
+// REFERENCIAS
+
+// Relacion 1 a 1
+//   Usuario y Cuenta
+//     Clase A  -> 
+//       cuenta   Cuenta?
+//     Clase B  -> 
+//       idUsuario    Int @unique
+//       usuario      Usuario?      @relation(fields: [idUsuario], references: [idUsuario])
+
+// Relacion 1 a muchos
+//   Usuario y UsuarioEstados
+//     Clase A  -> 
+//       usuarioEstado     UsuarioEstado[]
+//     Clase B  -> 
+//       idUsuario    Int @unique
+//       usuario      Usuario?       @relation(fields: [idUsuario], references: [idUsuario])
